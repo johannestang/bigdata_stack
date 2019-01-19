@@ -1,0 +1,5 @@
+databases:
+- database_name: Presto
+  expose_in_sqllab: true
+  sqlalchemy_uri: presto://presto-coordinator:8080/hive/default
+  tables: []

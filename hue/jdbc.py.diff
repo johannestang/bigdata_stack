@@ -1,0 +1,20 @@
+--- jdbc.py.orig	2018-10-17 03:19:04.000000000 +0200
++++ jdbc.py	2019-01-11 20:23:47.384070622 +0100
+@@ -202,7 +202,7 @@
+     return [table['name'] for table in tables]
+ 
+   def get_tables_full(self, database, table_names=[]):
+-    tables, description = query_and_fetch(self.db, "SELECT TABLE_NAME, TABLE_COMMENT FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='%s'" % database)
++    tables, description = query_and_fetch(self.db, "SELECT TABLE_NAME, 'Comments disabled!' AS TABLE_COMMENT FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='%s'" % database)
+     return [{"comment": table[1] and table[1].strip(), "type": "Table", "name": table[0] and table[0].strip()} for table in tables]
+ 
+   def get_columns(self, database, table):
+@@ -210,7 +210,7 @@
+     return [col['name'] for col in columns]
+ 
+   def get_columns_full(self, database, table):
+-    columns, description = query_and_fetch(self.db, "SELECT COLUMN_NAME, DATA_TYPE, COLUMN_COMMENT FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA='%s' AND TABLE_NAME='%s'" % (database, table))
++    columns, description = query_and_fetch(self.db, "SELECT COLUMN_NAME, DATA_TYPE, 'Comments disabled!' AS COLUMN_COMMENT FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA='%s' AND TABLE_NAME='%s'" % (database, table))
+     return [{"comment": col[2] and col[2].strip(), "type": col[1], "name": col[0] and col[0].strip()} for col in columns]
+ 
+   def get_sample_data(self, database, table, column=None):
