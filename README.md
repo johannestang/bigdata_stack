@@ -14,11 +14,16 @@ For more details see the following [post](https://johs.me/posts/big-data-stack-r
 ## Quick start
 
 Clone the repository and create `.env` file based on `sample.env` making sure `DATADIR` points to a 
-suitable directory (persistent storage for all containers). Bring up the stack:
+suitable directory (persistent storage for all containers). Bring up the base stack:
 ```
 docker-compose up -d
 ```
-and initialize the databases for Superset and Hue:
+If you also want to start Superset and Hue, then run:
+```
+docker-compose -f superset/docker-compose.yml up -d
+docker-compose -f hue/docker-compose.yml up -d
+```
+and initialize the databases:
 ```
 ./scripts/init-hue.sh
 ./scripts/init-superset.sh

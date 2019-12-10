@@ -1,4 +1,4 @@
-version: "3"
+version: "3.5"
 
 services:
 
@@ -15,6 +15,8 @@ services:
       - ./config/hadoop-hive.env
     ports:
       - "50070:50070"
+    networks:
+      - base_net
 
   datanode:
     image: johannestang/hadoop-datanode:2.0.0-hadoop2.8.5-java8
@@ -27,6 +29,8 @@ services:
       SERVICE_PRECONDITION: "namenode:50070"
     ports:
       - "50075:50075"
+    networks:
+      - base_net
 
   # Hive
 
@@ -43,6 +47,8 @@ services:
     ports:
       - "10000:10000"
       - "10002:10002"
+    networks:
+      - base_net
 
   hive-metastore:
     image: johannestang/hive:2.3.4-postgresql-metastore-s3
@@ -56,11 +62,15 @@ services:
       HDFS_CONF_fs_s3a_secret_key: ${MINIO_SECRET_KEY}
     ports:
       - "9083:9083"
+    networks:
+      - base_net
 
   hive-metastore-postgresql:
     image: bde2020/hive-metastore-postgresql:2.3.0
     volumes:
       - ${DATADIR}/hive-metastore:/var/lib/postgresql/data
+    networks:
+      - base_net
 
   # Presto
 
@@ -73,6 +83,8 @@ services:
       S3_ACCESS_KEY: ${MINIO_ACCESS_KEY}
       S3_SECRET_KEY: ${MINIO_SECRET_KEY}
       S3_ENDPOINT: "http://minio:9000"
+    networks:
+      - base_net
 
   # Minio
 
@@ -88,57 +100,9 @@ services:
       - ${DATADIR}/minio/data:/data
       - ${DATADIR}/minio/config:/root/.minio
     command: server /data
+    networks:
+      - base_net
 
-  # Superset
-
-  superset:
-    image: amancevice/superset:0.28.1
-    restart: always
-    depends_on:
-      - superset-postgres
-      - superset-redis
-    environment:
-      MAPBOX_API_KEY: ${MAPBOX_API_KEY}
-    ports:
-      - "8088:8088"
-    volumes:
-      - ./config/superset_config.py:/etc/superset/superset_config.py
-
-  superset-redis:
-    image: redis:3.2
-    restart: always
-    volumes:
-      - ${DATADIR}/superset/redis:/data
-
-  superset-postgres:
-    image: postgres:10
-    restart: always
-    environment:
-      POSTGRES_DB: superset
-      POSTGRES_PASSWORD: superset
-      POSTGRES_USER: superset
-    volumes:
-      - ${DATADIR}/superset/postgres:/var/lib/postgresql/data
-
-  # Hue
-
-  hue:
-    image: johannestang/hue:4.3.0-presto0.215
-    restart: always
-    depends_on:
-      - hue-postgres
-    ports:
-      - "8888:8888"
-    volumes:
-      - ./config/pseudo-distributed.ini:/hue/desktop/conf/pseudo-distributed.ini
-
-  hue-postgres:
-    image: postgres:10
-    restart: always
-    environment:
-      POSTGRES_DB: hue
-      POSTGRES_PASSWORD: hue
-      POSTGRES_USER: hue
-    volumes:
-      - ${DATADIR}/hue/postgres:/var/lib/postgresql/data
-
+networks:
+  base_net:
+    name: bigdatanet
