@@ -3,11 +3,11 @@
 Big data stack running in pseudo-distributed mode with the following components:
 
  - Hadoop 2.8.5
- - Minio RELEASE.2018-12-27T18-33-08Z
- - Hive 2.3.4
- - Presto 0.215
- - Superset 0.28.1
- - Hue 4.3.0
+ - Minio RELEASE.2019-10-12T01-39-57Z
+ - Hive 2.3.6
+ - Presto 326
+ - Superset 0.35.1
+ - Hue 4.5.0
 
 For more details see the following [post](https://johs.me/posts/big-data-stack-running-sql-queries/).
 
@@ -23,7 +23,7 @@ If you also want to start Superset and Hue, then run:
 docker-compose -f superset/docker-compose.yml up -d
 docker-compose -f hue/docker-compose.yml up -d
 ```
-and initialize the databases:
+and initialize:
 ```
 ./scripts/init-hue.sh
 ./scripts/init-superset.sh
@@ -48,16 +48,16 @@ in the different sub-directories.
 Changes compared to original images:
 
  - Hadoop updated to version 2.8.5
- - Hive update to version 2.3.4
+ - Hive update to version 2.3.6
  - S3 support added
- - Presto update to 0.215
+ - Presto update to 326
  - Presto JDBC driver added to Hue
 
 The scripts directory contains some helper scripts:
 
  - `beeline.sh`: Launch Beeline (Hive CLI) in Hive container 
  - `hadoop-client.sh`: Start container with Hadoop utilities (host filesystem mounted as `/host`). Useful for moving files to HDFS.
- - `init-hue.sh`: Initialize Hue database
+ - `init-hue.sh`: Create admin home folder in HDFS in order to avoid error in Hue File Browser.
  - `init-superset.sh`: Initialize Superset database and add Presto as data source
  - `presto-cli.sh`: Launch Presto CLI (downloads jar if needed)
 

@@ -1,67 +1,85 @@
-# Note: This Dockerfile is based on https://github.com/cloudera/hue/blob/master/tools/docker/hue-base/Dockerfile
+# Note: This Dockerfile is based on https://github.com/cloudera/hue/blob/master/tools/docker/hue/Dockerfile
 # The following changes have been made:
 #
 # 1. Dockerfile now based on specific Hue version.
 # 2. Presto JDBC driver added.
-# 3. Small quick-fix to JDBC interface to handle incompatibility with Presto.
 
-FROM ubuntu:trusty
+FROM ubuntu:18.04
 MAINTAINER johs@johs.me
 
-ENV PRESTO_VERSION=0.215
-ENV HUE_VERSION=4.3.0
+ENV PRESTO_VERSION=326
+ENV HUE_VERSION=4.5.0
 
-RUN apt-get update -y
-
-RUN apt-get install -y software-properties-common
-RUN add-apt-repository -y ppa:webupd8team/java
-RUN apt-get update -y
-
-RUN echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections
-RUN apt-get install -y oracle-java8-installer
-
-RUN apt-get update -y
-RUN apt-get install --fix-missing -q -y \
-  git \
-  ant \
-  gcc \
-  g++ \
+RUN apt-get update -y && apt-get install -y \
+  build-essential \
   libkrb5-dev \
   libmysqlclient-dev \
   libssl-dev \
   libsasl2-dev \
   libsasl2-modules-gssapi-mit \
   libsqlite3-dev \
-  libtidy-0.99-0 \
+  libtidy-dev \
   libxml2-dev \
   libxslt-dev \
   libffi-dev \
-  make \
-  maven \
   libldap2-dev \
+  libpq-dev \
   python-dev \
   python-setuptools \
   libgmp3-dev \
   libz-dev \
+  software-properties-common \
   curl \
-  postgresql-server-dev-all
+  git \
+  rsync \
+  sudo \
+  maven \
+  gcc \
+  swig \
+  # openssl \ # Breaks build
+  xmlsec1 \
+  libxmlsec1-openssl \
+  && rm -rf /var/lib/apt/lists/*
 
-RUN curl -L https://github.com/cloudera/hue/archive/release-${HUE_VERSION}.tar.gz -o /tmp/hue.tgz && \
-    tar -xzf /tmp/hue.tgz -C / && \
-    mv /hue-release-${HUE_VERSION} /hue && \
-    rm -f /tmp/hue.tgz
+# Get Hue from Git repo
+WORKDIR /
+RUN git clone -n https://github.com/cloudera/hue
+WORKDIR /hue
+RUN git checkout release-${HUE_VERSION}
 
-RUN curl -L https://repo1.maven.org/maven2/com/facebook/presto/presto-jdbc/${PRESTO_VERSION}/presto-jdbc-${PRESTO_VERSION}.jar -o /usr/lib/jvm/java-8-oracle/jre/lib/ext/presto-jdbc.jar
+# Install Presto JDBC driver
+RUN mkdir -p /opt/presto
+RUN curl -L https://repo1.maven.org/maven2/io/prestosql/presto-jdbc/${PRESTO_VERSION}/presto-jdbc-${PRESTO_VERSION}.jar \
+         -o /opt/presto/presto-jdbc.jar
 
-COPY jdbc.py.diff /hue/desktop/libs/notebook/src/notebook/connectors/jdbc.py.diff
-RUN cd /hue/desktop/libs/notebook/src/notebook/connectors && \
-    patch < jdbc.py.diff
+# Not doing a `make prod`, so manually getting production ini
+RUN rm desktop/conf/*
+RUN cp desktop/conf.dist/* desktop/conf
 
-WORKDIR hue
-RUN make apps
+# Need recent version for Ubuntu
+RUN curl -sL https://deb.nodesource.com/setup_10.x | sudo bash - \
+  && apt-get install -y nodejs
 
-RUN /bin/bash -c "source ./build/env/bin/activate && pip install psycopg2-binary && deactivate"
+RUN PREFIX=/usr/share make install
+RUN useradd -ms /bin/bash hue && chown -R hue /usr/share/hue
+
+# Only keep install dir
+# Note: get more minimal image by pulling install dir in a stage 2 image
+WORKDIR /usr/share/hue
+RUN rm -rf /hue \
+  && rm -rf node_modules
+
+# Install DB connectors
+RUN ./build/env/bin/pip install \
+  psycopg2-binary \
+  redis==2.10.6 \
+  django_redis \
+  flower \
+  gevent \
+  threadloop # Needed for Jaeger
+
+COPY conf desktop/conf
+COPY startup.sh .
 
 EXPOSE 8888
-VOLUME /hue/desktop/
-CMD ["build/env/bin/hue", "runserver_plus", "0.0.0.0:8888"]
+CMD ["./startup.sh"]

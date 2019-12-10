@@ -5,14 +5,14 @@ services:
   # Hue
 
   hue:
-    image: johannestang/hue:4.3.0-presto0.215
+    image: johannestang/hue:4.5.0-presto326
     restart: always
     depends_on:
       - hue-postgres
     ports:
       - "8888:8888"
     volumes:
-      - ./config/pseudo-distributed.ini:/hue/desktop/conf/pseudo-distributed.ini
+      - ./config/hue.ini:/usr/share/hue/desktop/conf/z-hue.ini
     networks:
       - hue_net
 
