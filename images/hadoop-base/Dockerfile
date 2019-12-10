@@ -2,16 +2,15 @@
 # The following changes have been made:
 #
 # 1. Hadoop updated to 2.8.5
+# 2. Base image updated to debian 9
 
-FROM debian:8
+FROM debian:9
 MAINTAINER johs@johs.me
 
-RUN echo "deb http://ftp.debian.org/debian jessie-backports main" >> /etc/apt/sources.list
-
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends -t jessie-backports openjdk-8-jdk
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends openjdk-8-jdk
 ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/
 
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends net-tools curl netcat
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends net-tools curl netcat gnupg
 
 RUN curl -L https://dist.apache.org/repos/dist/release/hadoop/common/KEYS -o /tmp/KEYS && \
     gpg --import /tmp/KEYS
