@@ -5,7 +5,7 @@ services:
   # Superset
 
   superset:
-    image: amancevice/superset:0.28.1
+    image: amancevice/superset:0.35.1
     restart: always
     depends_on:
       - superset-postgres
