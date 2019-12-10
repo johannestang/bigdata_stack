@@ -6,10 +6,9 @@
 # 3. Launcher modified such that S3 credentials can be set by env vars.
 
 FROM openjdk:8u181-jre-stretch
+MAINTAINER johs@johs.me
 
-LABEL MAINTAINER=johs@johs.me
-
-ENV PRESTO_VERSION=0.215
+ENV PRESTO_VERSION=326
 ENV PRESTO_HOME=/opt/presto
 
 # extra dependency for running launcher
@@ -18,7 +17,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/* && \
     ln -s /usr/bin/python2.7 /usr/bin/python
 
-RUN curl -L https://repo1.maven.org/maven2/com/facebook/presto/presto-server/${PRESTO_VERSION}/presto-server-${PRESTO_VERSION}.tar.gz -o /tmp/presto-server.tgz && \
+RUN curl -L https://repo1.maven.org/maven2/io/prestosql/presto-server/${PRESTO_VERSION}/presto-server-${PRESTO_VERSION}.tar.gz -o /tmp/presto-server.tgz && \
     tar -xzf /tmp/presto-server.tgz -C /opt && \
     ln -s /opt/presto-server-${PRESTO_VERSION} ${PRESTO_HOME} && \
     mkdir -p ${PRESTO_HOME}/data && \
