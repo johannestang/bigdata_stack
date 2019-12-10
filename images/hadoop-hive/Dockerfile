@@ -2,7 +2,7 @@
 # The following changes have been made:
 #
 # 1. Hadoop updated to 2.8.5
-# 2. Hive updated to 2.3.4
+# 2. Hive updated to 2.3.6
 # 3. AWS S3 jars added
 
 FROM johannestang/hadoop-base:2.0.0-hadoop2.8.5-java8
@@ -10,7 +10,7 @@ FROM johannestang/hadoop-base:2.0.0-hadoop2.8.5-java8
 MAINTAINER johs@johs.me
 
 ENV HADOOP_VERSION 2.8.5
-ENV HIVE_VERSION 2.3.4
+ENV HIVE_VERSION 2.3.6
 ENV AWS_VERSION=1.10.75.2
 
 ENV HIVE_HOME /opt/hive

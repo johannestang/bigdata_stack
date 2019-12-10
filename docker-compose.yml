@@ -35,7 +35,7 @@ services:
   # Hive
 
   hive-server:
-    image: johannestang/hive:2.3.4-postgresql-metastore-s3
+    image: johannestang/hive:2.3.6-postgresql-metastore-s3
     restart: always
     env_file:
       - ./config/hadoop-hive.env
@@ -51,7 +51,7 @@ services:
       - base_net
 
   hive-metastore:
-    image: johannestang/hive:2.3.4-postgresql-metastore-s3
+    image: johannestang/hive:2.3.6-postgresql-metastore-s3
     restart: always
     env_file:
       - ./config/hadoop-hive.env
