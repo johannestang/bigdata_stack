@@ -1,4 +1,4 @@
-# Note: This Dockerfile is based on https://github.com/shawnzhu/docker-prestodb/Dockerfile
+# Note: This Dockerfile is based on https://github.com/shawnzhu/docker-prestodb/blob/300/Dockerfile
 # The following changes have been made:
 #
 # 1. Presto version updated.
